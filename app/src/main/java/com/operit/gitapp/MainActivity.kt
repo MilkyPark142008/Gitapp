@@ -1,7 +1,6 @@
 package com.operit.gitapp
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
@@ -131,67 +130,30 @@ class MainActivity : AppCompatActivity() {
                 }
                 .show()
         } else {
-            showLoginChoices()
+            showLoginDialog()
         }
     }
-    private fun showLoginChoices() {
+
+    private fun showLoginDialog() {
         AlertDialog.Builder(this)
             .setTitle("连接 GitHub")
-            .setMessage("推荐使用 GitHub 设备码登录。Gitapp 不会保存你的 GitHub 密码，令牌仅加密保存在本机。\n\n注意：请在 GitHub OAuth App 设置里启用 Enable Device Flow。")
-            .setPositiveButton("使用 GitHub 登录") { _, _ -> startDeviceFlowLogin() }
-            .setNeutralButton("使用 Token") { _, _ -> tokenInputDialog() }
+            .setMessage("将使用系统浏览器打开 GitHub 官方授权页面。Gitapp 不会保存你的 GitHub 密码，令牌仅加密保存在本机。")
+            .setPositiveButton("使用 GitHub 登录") { _, _ -> startBrowserOAuth() }
             .setNegativeButton("取消", null)
             .show()
     }
 
-    private fun startDeviceFlowLogin() {
-        progress("正在向 GitHub 请求设备码…")
-        worker.execute {
-            runCatching {
-                val deviceCode = GitHubDeviceFlowService.requestDeviceCode(this)
-                runOnUiThread { showDeviceCodeDialog(deviceCode) }
-                GitHubDeviceFlowService.pollForToken(this, deviceCode) { message ->
-                    runOnUiThread { Toast.makeText(this, message, Toast.LENGTH_SHORT).show() }
-                }
-            }.onSuccess { token ->
-                tokenStore.save(token)
-                done("GitHub 登录成功")
-            }.onFailure { error ->
-                done("登录失败：${error.message}")
-            }
+    private fun startBrowserOAuth() {
+        runCatching {
+            val start = GitHubOAuthService.beginAuthorization(this)
+            startActivity(Intent(Intent.ACTION_VIEW, start.authorizationUrl))
+        }.onFailure {
+            AlertDialog.Builder(this)
+                .setTitle("无法开始 GitHub 登录")
+                .setMessage(it.message ?: "未知错误")
+                .setPositiveButton("知道了", null)
+                .show()
         }
-    }
-
-    private fun showDeviceCodeDialog(deviceCode: GitHubDeviceCode) {
-        AlertDialog.Builder(this)
-            .setTitle("GitHub 设备码登录")
-            .setMessage("请在 GitHub 页面输入验证码：\n\n${deviceCode.userCode}\n\nApp 会在你授权后自动完成登录。")
-            .setPositiveButton("打开 GitHub") { _, _ ->
-                startActivity(Intent(Intent.ACTION_VIEW, deviceCode.verificationUriAsUri))
-            }
-            .setNeutralButton("复制验证码", null)
-            .setNegativeButton("关闭", null)
-            .show()
-    }
-
-
-    private fun tokenInputDialog() {
-        val input = EditText(this).apply {
-            hint = "github_pat_..."
-            setSingleLine(false)
-        }
-        AlertDialog.Builder(this)
-            .setTitle("Personal Access Token")
-            .setMessage("高级登录方式。请粘贴拥有目标仓库 Contents: Read and write 权限的 GitHub Token。令牌只加密保存在本机。")
-            .setView(input)
-            .setNegativeButton("取消", null)
-            .setPositiveButton("安全保存") { _, _ ->
-                if (input.text.isNullOrBlank()) toast("请输入令牌") else {
-                    tokenStore.save(input.text.toString())
-                    showHome()
-                }
-            }
-            .show()
     }
 
     private fun showAddDialog() {
