@@ -137,9 +137,10 @@ class MainActivity : AppCompatActivity() {
     private fun showLoginDialog() {
         AlertDialog.Builder(this)
             .setTitle("连接 GitHub")
-            .setMessage("将使用系统浏览器打开 GitHub 官方授权页面。Gitapp 不会保存你的 GitHub 密码，令牌仅加密保存在本机。")
+            .setMessage("请选择一种登录方式。Gitapp 不会保存你的 GitHub 密码，令牌仅加密保存在本机。")
             .setPositiveButton("使用 GitHub 登录") { _, _ -> startBrowserOAuth() }
-            .setNegativeButton("取消", null)
+            .setNeutralButton("使用 PAT 登录") { _, _ -> tokenInputDialog() }
+            .setNegativeButton("查看教程") { _, _ -> showPatTutorial() }
             .show()
     }
 
@@ -154,6 +155,22 @@ class MainActivity : AppCompatActivity() {
                 .setPositiveButton("知道了", null)
                 .show()
         }
+    }
+
+    private fun showPatTutorial() {
+        AlertDialog.Builder(this)
+            .setTitle("GitHub PAT 教程")
+            .setMessage(
+                "1. 打开 GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens\n" +
+                "2. 点击 Generate new token\n" +
+                "3. 选择你的仓库或仅允许指定仓库\n" +
+                "4. Repository permissions 里把 Contents 设为 Read and write\n" +
+                "5. 如果需要读取仓库信息，可保留 Metadata 只读\n" +
+                "6. 复制生成的 token，返回 App 粘贴保存\n\n" +
+                "注意：PAT 只会加密保存在本机，不会上传到任何服务器。"
+            )
+            .setPositiveButton("知道了", null)
+            .show()
     }
 
     private fun showAddDialog() {
