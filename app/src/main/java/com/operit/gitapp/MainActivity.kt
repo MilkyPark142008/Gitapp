@@ -143,7 +143,6 @@ class MainActivity : AppCompatActivity() {
             .setNegativeButton("查看教程") { _, _ -> showPatTutorial() }
             .show()
     }
-
     private fun startBrowserOAuth() {
         runCatching {
             val start = GitHubOAuthService.beginAuthorization(this)
@@ -157,7 +156,32 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun tokenInputDialog() {
+        val input = EditText(this).apply {
+            hint = "粘贴 GitHub Personal Access Token"
+            singleLine = true
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle("使用 PAT 登录")
+            .setMessage("请输入 GitHub Personal Access Token。令牌只会加密保存在本机。")
+            .setView(input)
+            .setNegativeButton("取消", null)
+            .setPositiveButton("保存") { _, _ ->
+                val token = input.text.toString().trim()
+                if (token.isBlank()) {
+                    toast("Token 不能为空")
+                    return@setPositiveButton
+                }
+                tokenStore.save(token)
+                toast("GitHub Token 已保存")
+                showHome()
+            }
+            .show()
+    }
+
     private fun showPatTutorial() {
+
         AlertDialog.Builder(this)
             .setTitle("GitHub PAT 教程")
             .setMessage(
