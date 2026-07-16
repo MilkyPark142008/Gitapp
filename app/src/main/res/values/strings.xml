@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">Gitapp</string>
     <string name="github_client_id">Ov23lieGzMd0dzRM72PD</string>
+
+    <!-- 可选：如果 GitHub 返回 incorrect_client_credentials，可填入同一个 OAuth App 的 Client Secret。
+         注意：把 Client Secret 放进 APK 不安全，正式发布建议使用后端换 token 或改用 Device Flow。 -->
+    <string name="github_client_secret">REPLACE_WITH_GITHUB_CLIENT_SECRET</string>
 </resources>

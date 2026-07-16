@@ -5,3 +5,10 @@ local.properties
 *.jks
 *.keystore
 .github/local-secrets/
+
+# Local/editor/AI helper files
+.backup/
+.orbit/
+.choccy-classpath-init.gradle
+.kls-classpath
+kls-classpath

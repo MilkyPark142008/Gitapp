@@ -12,11 +12,13 @@ class OAuthSessionStore(context: Context) {
     private val prefs = context.getSharedPreferences("oauth_session", Context.MODE_PRIVATE)
 
     fun save(session: OAuthSession) {
-        prefs.edit()
+        val saved = prefs.edit()
             .putString(KEY_STATE, session.state)
             .putString(KEY_VERIFIER, session.codeVerifier)
             .putLong(KEY_CREATED_AT, session.createdAt)
-            .apply()
+            .commit()
+
+        if (!saved) throw IllegalStateException("OAuth 会话保存失败，请重试")
     }
 
     fun current(): OAuthSession? {
