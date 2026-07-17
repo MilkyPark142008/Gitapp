@@ -159,7 +159,7 @@ class MainActivity : AppCompatActivity() {
     private fun tokenInputDialog() {
         val input = EditText(this).apply {
             hint = "粘贴 GitHub Personal Access Token"
-            singleLine = true
+            setSingleLine(true)
         }
 
         AlertDialog.Builder(this)
